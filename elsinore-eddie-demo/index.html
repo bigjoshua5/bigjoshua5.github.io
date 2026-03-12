@@ -88,6 +88,57 @@ p{
     }
 }
 
+.embed-section{
+    position:absolute;
+    top:60%;
+    left:50%;
+    transform:translateX(-50%);
+    width:600px;
+    text-align:center;
+}
+
+.embed-section h2{
+    margin-bottom:10px;
+}
+
+.embed-section p{
+    margin-bottom:20px;
+    opacity:.8;
+}
+
+.code-container{
+    position:relative;
+    background:#1e1e1e;
+    color:#dcdcdc;
+    padding:20px;
+    border-radius:8px;
+    box-shadow:0 10px 25px rgba(0,0,0,.2);
+    text-align:left;
+}
+
+.code-container pre{
+    margin:0;
+    overflow-x:auto;
+    font-family:Consolas, monospace;
+    font-size:14px;
+}
+
+.copy-btn{
+    position:absolute;
+    top:10px;
+    right:10px;
+    background:#0078ff;
+    color:white;
+    border:none;
+    padding:6px 12px;
+    border-radius:4px;
+    cursor:pointer;
+}
+
+.copy-btn:hover{
+    background:#005ed1;
+}
+
 /* Chatbot position */
 
 df-messenger{
@@ -100,11 +151,51 @@ df-messenger{
 </style>
 </head>
 
+<script>
+function copyCode() {
+
+    const code = document.getElementById("embedCode").innerText;
+
+    navigator.clipboard.writeText(code);
+
+    const btn = document.querySelector(".copy-btn");
+    btn.innerText = "Copied!";
+
+    setTimeout(()=>{
+        btn.innerText="Copy Code";
+    },2000);
+
+}
+</script>
+
 <body>
 
 <div class="content">
 <h1>Meet Elsinore Eddie</h1>
 <p>Click the chat icon in the corner to start talking with the AI assistant.</p>
+</div>
+
+<div class="embed-section">
+
+<h2>Add this agent to your website</h2>
+
+<p>Copy the code below and paste it into your website's HTML where you would like the chatbot to appear.</p>
+
+<div class="code-container">
+
+<button class="copy-btn" onclick="copyCode()">Copy Code</button>
+
+<pre id="embedCode"><code>&lt;script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"&gt;&lt;/script&gt;
+&lt;df-messenger
+  chat-icon="https://pbs.twimg.com/profile_images/1706817590906306560/xpM_m5NG.jpg"
+  intent="WELCOME"
+  chat-title="Elsinore-Eddie"
+  agent-id="a78885bb-e6ee-492e-9433-5344dca3be40"
+  language-code="en"
+&gt;&lt;/df-messenger&gt;</code></pre>
+
+</div>
+
 </div>
 
 <div class="arrow-container">
