@@ -5,6 +5,90 @@
 <title>Elsinore Eddie Chatbot Demo</title>
 
 <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+<script>
+  // ==================== CONFIG VARIABLES (edit these) ====================
+  const ICR_SCRIPT_URL = 'https://pop6-ccs-webchat-api.serverdata.net/script/icr?cid=el....'; 
+  // ← Replace with your exact Intermedia ICR script URL (including any &lang= or other params)
+
+  // Variables to pass / track for history (full transcript CANNOT be auto-passed to Intermedia queue)
+  let conversationHistory = [];   // Array of {role: 'user'|'bot', text: string, timestamp: Date}
+  const HANDOFF_INTENT_NAME = 'Chat with a live Agent - yes';  // Must match exact intent display name
+
+  // Optional: Any extra data you want to "pass" (logged client-side or shown in summary)
+  const handoffData = {
+    userId: '',           // e.g., from your site login or df-messenger user-id attribute
+    sessionId: '',        // Will auto-fill from Messenger if set
+    summary: ''           // Built dynamically below
+  };
+
+  // =====================================================================
+
+  const dfMessenger = document.querySelector('df-messenger');
+
+  if (!dfMessenger) {
+    console.error('df-messenger element not found');
+  } else {
+    // 1. Track conversation history for summary (optional but recommended)
+    dfMessenger.addEventListener('df-request-sent', (event) => {
+      if (event.detail?.requestBody?.queryInput?.text?.text) {
+        conversationHistory.push({
+          role: 'user',
+          text: event.detail.requestBody.queryInput.text.text,
+          timestamp: new Date()
+        });
+      }
+    });
+
+    dfMessenger.addEventListener('df-response-received', (event) => {
+      const response = event.detail?.response;
+      if (!response) return;
+
+      // Track bot replies
+      const botText = response.queryResult?.fulfillmentText || 
+                      response.queryResult?.fulfillmentMessages?.[0]?.text?.text?.[0] || '';
+      if (botText) {
+        conversationHistory.push({
+          role: 'bot',
+          text: botText,
+          timestamp: new Date()
+        });
+      }
+
+      // 2. DETECT HANDOFF INTENT
+      const intentName = response.queryResult?.intent?.displayName;
+      if (intentName === HANDOFF_INTENT_NAME) {
+        console.log('Handoff intent detected – switching to Intermedia ICR');
+
+        // Build a quick summary for your records (or display in last message)
+        handoffData.summary = conversationHistory
+          .slice(-6)  // last 6 messages for brevity
+          .map(msg => `${msg.role}: ${msg.text}`)
+          .join(' | ');
+
+        handoffData.userId = dfMessenger.getAttribute('user-id') || 'unknown';
+        handoffData.sessionId = dfMessenger.getAttribute('session-id') || 'unknown';
+
+        // 3. Hide Dialogflow Messenger
+        dfMessenger.style.display = 'none';
+
+        // 4. Dynamically load Intermedia ICR widget
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = ICR_SCRIPT_URL;
+        script.async = true;
+        document.body.appendChild(script);
+
+        // Optional: Add a container div for positioning if needed
+        const icrContainer = document.createElement('div');
+        icrContainer.id = 'intermedia-chat-container';
+        document.body.appendChild(icrContainer);
+
+        // Clean up listener to prevent re-trigger
+        dfMessenger.removeEventListener('df-response-received', arguments.callee);
+      }
+    });
+  }
+</script>
 
 <style>
 
