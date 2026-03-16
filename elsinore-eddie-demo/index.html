@@ -5,93 +5,7 @@
 <title>Elsinore Eddie Chatbot Demo</title>
 
 <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
-<script>
-  // ==================== CONFIG VARIABLES (edit these) ====================
-  const ICR_SCRIPT_URL = 'https://pop6-ccs-webchat-api.serverdata.net/script/icr?cid=el....'; 
-  // ← Your exact ICR script URL
 
-  const HANDOFF_INTENT_NAME = 'Chat with a live Agent - yes';  // fallback check
-
-  // =====================================================================
-
-  const dfMessenger = document.querySelector('chat-wrapper');
-
-  if (!dfMessenger) {
-    console.error('chat-wrapper element not found');
-  } else {
-    let conversationHistory = [];  // optional tracking
-
-    // Track user messages
-    dfMessenger.addEventListener('df-request-sent', (event) => {
-      if (event.detail?.requestBody?.queryInput?.text?.text) {
-        conversationHistory.push({
-          role: 'user',
-          text: event.detail.requestBody.queryInput.text.text,
-          timestamp: new Date()
-        });
-      }
-    });
-
-    // Track bot messages + detect handoff
-    dfMessenger.addEventListener('df-response-received', (event) => {
-      const response = event.detail?.response;
-      if (!response) return;
-
-      // Optional: track bot text
-      const botText = response.queryResult?.fulfillmentText || 
-                      response.queryResult?.fulfillmentMessages?.find(m => m.text)?.text?.text?.[0] || '';
-      if (botText) {
-        conversationHistory.push({
-          role: 'bot',
-          text: botText,
-          timestamp: new Date()
-        });
-      }
-
-      // === PAYLOAD DETECTION ===
-      const messages = response.queryResult?.fulfillmentMessages || [];
-      const hasHandoffPayload = messages.some(msg => {
-        const payload = msg.payload;
-        return payload && 
-               payload.live_agent_handoff && 
-               payload.live_agent_handoff.queue === 'queue-770644' && 
-               payload.live_agent_handoff.skip_welcome === true;
-      });
-
-      // Optional fallback: check intent name if payload detection fails for some reason
-      const isHandoffIntent = response.queryResult?.intent?.displayName === HANDOFF_INTENT_NAME;
-
-      if (hasHandoffPayload || isHandoffIntent) {
-        console.log('Handoff detected via payload (or intent fallback) – switching to Intermedia ICR');
-
-        // Optional: Build summary (for console or your own logging)
-        const summary = conversationHistory
-          .slice(-8)  // last 8 messages
-          .map(msg => `${msg.role}: ${msg.text}`)
-          .join(' | ');
-        console.log('Conversation summary before handoff:', summary);
-
-        // Hide Dialogflow Messenger
-        dfMessenger.style.display = 'none';
-
-        // Load Intermedia ICR widget
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = ICR_SCRIPT_URL;
-        script.async = true;
-        document.body.appendChild(script);
-
-        // Optional container (helps with styling/positioning if your ICR widget needs it)
-        const icrContainer = document.createElement('div');
-        icrContainer.id = 'intermedia-chat-container';
-        document.body.appendChild(icrContainer);
-
-        // Prevent re-triggering on future responses
-        dfMessenger.removeEventListener('df-response-received', arguments.callee);
-      }
-    });
-  }
-</script>
 <style>
 
 body{
@@ -299,6 +213,73 @@ agent-id="a78885bb-e6ee-492e-9433-5344dca3be40"
 language-code="en"
 wait-open>
 </df-messenger>
+
+<!-- Handoff script: detects "Speak to a live Agent" triggers and opens ICR -->
+<script>
+(function(){
+    const ICR_SRC = 'https://pop6-ccs-webchat-api.serverdata.net/script/icr?cid=elsinorewater&icr=918eabbf-966b-4af0-82c0-21cd2af857d3';
+    const TARGET_QUEUE = 'queue-770644';
+
+    function waitForDf(){
+        return new Promise(res=>{
+            const el = document.querySelector('df-messenger');
+            if(el) return res(el);
+            const t = setInterval(()=>{
+                const e = document.querySelector('df-messenger');
+                if(e){ clearInterval(t); res(e); }
+            },200);
+            setTimeout(()=>{ clearInterval(t); res(document.querySelector('df-messenger')); },30000);
+        });
+    }
+
+    function observeForPayload(df){
+        const root = df && df.shadowRoot ? df.shadowRoot : document;
+        const mo = new MutationObserver(muts=>{
+            for(const m of muts){
+                for(const n of m.addedNodes){
+                    if(n.nodeType !== 1) continue;
+                    const txt = (n.textContent||'').trim();
+                    if(!txt) continue;
+                    try{
+                        const j = JSON.parse(txt);
+                        if(j && j.live_agent_handoff){ mo.disconnect(); startICR(j.live_agent_handoff); return; }
+                    }catch(e){}
+                    if(/speak to a live agent/i.test(txt)){ mo.disconnect(); startICR({queue:TARGET_QUEUE, skip_welcome:true}); return; }
+                }
+            }
+        });
+        mo.observe(root,{ childList:true, subtree:true });
+
+        try{ const j = JSON.parse(root.textContent||''); if(j && j.live_agent_handoff){ mo.disconnect(); startICR(j.live_agent_handoff); return; } }catch(e){}
+        if(/speak to a live agent/i.test(root.textContent||'')){ mo.disconnect(); startICR({queue:TARGET_QUEUE, skip_welcome:true}); }
+    }
+
+    function startICR(payload){
+        if(window.__ICR_INJECTED) return postQueue(payload);
+        const s = document.createElement('script'); s.src = ICR_SRC; s.async = true;
+        s.onload = ()=>{ window.__ICR_INJECTED = true; setTimeout(()=> postQueue(payload), 500); };
+        document.head.appendChild(s);
+    }
+
+    function postQueue(payload){
+        const iframeSelector = 'iframe[src*="serverdata.net"]';
+        const iframe = document.querySelector(iframeSelector);
+        if(iframe && iframe.contentWindow){
+            iframe.contentWindow.postMessage({ type:'live_agent_handoff', queue: payload && payload.queue ? payload.queue : TARGET_QUEUE, metadata: payload }, '*');
+            return;
+        }
+        let tries = 0;
+        const t = setInterval(()=>{
+            tries++;
+            const f = document.querySelector(iframeSelector);
+            if(f && f.contentWindow){ clearInterval(t); f.contentWindow.postMessage({ type:'live_agent_handoff', queue: payload && payload.queue ? payload.queue : TARGET_QUEUE, metadata: payload }, '*'); }
+            else if(tries>10){ clearInterval(t); }
+        },500);
+    }
+
+    waitForDf().then(df=>{ if(df) observeForPayload(df); }).catch(()=>{});
+})();
+</script>
 
 </body>
 </html>
