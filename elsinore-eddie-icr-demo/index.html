@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Elsinore Eddie Chatbot Demo</title>
+
+<script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:linear-gradient(120deg,#eef2f3,#ffffff);
+    height:100vh;
+    overflow:hidden;
+}
+
+/* Center content */
+
+.content{
+    position:absolute;
+    top:40%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+}
+
+h1{
+    font-size:46px;
+    margin-bottom:10px;
+}
+
+p{
+    font-size:20px;
+    opacity:.75;
+}
+
+/* Animated arrow */
+
+.arrow-container{
+    position:absolute;
+    bottom:15px;
+    right:120px;
+    animation:bounce 1.5s infinite;
+}
+
+.arrow{
+    width:80px;
+    height:80px;
+    border-right:6px solid #0078ff;
+    border-bottom:6px solid #0078ff;
+    transform:rotate(-45deg);
+}
+
+/* Arrow animation */
+
+@keyframes bounce{
+    0%{transform:translate(0,0)}
+    50%{transform:translate(10px,10px)}
+    100%{transform:translate(0,0)}
+}
+
+/* Subtle highlight circle around chatbot button */
+
+.pulse{
+    position:absolute;
+    bottom:18px;
+    right:18px;
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    background:rgba(0,120,255,.2);
+    animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+    0%{
+        transform:scale(.8);
+        opacity:.7;
+    }
+    70%{
+        transform:scale(1.6);
+        opacity:0;
+    }
+    100%{
+        opacity:0;
+    }
+}
+
+.embed-section{
+    position:absolute;
+    top:60%;
+    left:50%;
+    transform:translateX(-50%);
+    width:600px;
+    text-align:center;
+}
+
+.embed-section h2{
+    margin-bottom:10px;
+}
+
+.embed-section p{
+    margin-bottom:20px;
+    opacity:.8;
+}
+
+.code-container{
+    position:relative;
+    background:#1e1e1e;
+    color:#dcdcdc;
+    padding:20px;
+    border-radius:8px;
+    box-shadow:0 10px 25px rgba(0,0,0,.2);
+    text-align:left;
+}
+
+.code-container pre{
+    margin:0;
+    overflow-x:auto;
+    font-family:Consolas, monospace;
+    font-size:14px;
+}
+
+.copy-btn{
+    position:absolute;
+    top:10px;
+    right:10px;
+    background:#0078ff;
+    color:white;
+    border:none;
+    padding:6px 12px;
+    border-radius:4px;
+    cursor:pointer;
+}
+
+.copy-btn:hover{
+    background:#005ed1;
+}
+
+/* Chatbot position */
+
+df-messenger{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    z-index:1000;
+}
+
+</style>
+</head>
+
+<script>
+function copyCode() {
+
+    const code = document.getElementById("embedCode").innerText;
+
+    navigator.clipboard.writeText(code);
+
+    const btn = document.querySelector(".copy-btn");
+    btn.innerText = "Copied!";
+
+    setTimeout(()=>{
+        btn.innerText="Copy Code";
+    },2000);
+
+}
+</script>
+
+<body>
+
+<div class="content">
+<h1>Meet Elsinore Eddie</h1>
+<p>Click the chat icon in the corner to start talking with the AI assistant.</p>
+</div>
+
+<div class="embed-section">
+
+<h2>Add this agent to your website</h2>
+
+<p>Copy the code below and paste it into your website's HTML where you would like the chatbot to appear.</p>
+
+<div class="code-container">
+
+<button class="copy-btn" onclick="copyCode()">Copy Code</button>
+
+<pre id="embedCode"><code>&lt;script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"&gt;&lt;/script&gt;
+&lt;df-messenger
+  chat-icon="https://pbs.twimg.com/profile_images/1706817590906306560/xpM_m5NG.jpg"
+  intent="WELCOME"
+  chat-title="Elsinore-Eddie"
+  agent-id="a78885bb-e6ee-492e-9433-5344dca3be40"
+  language-code="en"
+  wait-open
+&gt;&lt;/df-messenger&gt;</code></pre>
+
+</div>
+
+</div>
+
+<div class="arrow-container">
+<div class="arrow"></div>
+</div>
+
+<div class="pulse"></div>
+  <script type="text/javascript" src="https://pop6-ccs-webchat-api.serverdata.net/script/icr?cid=elsinorewater&icr=918eabbf-966b-4af0-82c0-21cd2af857d3"></script>
+</body>
+</html>
