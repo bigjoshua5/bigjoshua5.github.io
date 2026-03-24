@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Elsinore Eddie Chatbot Demo</title>
+<title>Elsinore Eddie ICR Chatbot Demo</title>
 
 <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
 
@@ -151,49 +151,14 @@ df-messenger{
 </style>
 </head>
 
-<script>
-function copyCode() {
-
-    const code = document.getElementById("embedCode").innerText;
-
-    navigator.clipboard.writeText(code);
-
-    const btn = document.querySelector(".copy-btn");
-    btn.innerText = "Copied!";
-
-    setTimeout(()=>{
-        btn.innerText="Copy Code";
-    },2000);
-
-}
-</script>
-
 <body>
 
 <div class="content">
-<h1>Meet Elsinore Eddie</h1>
+<h1>Meet Elsinore Eddie ICR</h1>
 <p>Click the chat icon in the corner to start talking with the AI assistant.</p>
 </div>
 
 <div class="embed-section">
-
-<h2>Add this agent to your website</h2>
-
-<p>Copy the code below and paste it into your website's HTML where you would like the chatbot to appear.</p>
-
-<div class="code-container">
-
-<button class="copy-btn" onclick="copyCode()">Copy Code</button>
-
-<pre id="embedCode"><code>&lt;script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"&gt;&lt;/script&gt;
-&lt;df-messenger
-  chat-icon="https://pbs.twimg.com/profile_images/1706817590906306560/xpM_m5NG.jpg"
-  intent="WELCOME"
-  chat-title="Elsinore-Eddie"
-  agent-id="a78885bb-e6ee-492e-9433-5344dca3be40"
-  language-code="en"
-  wait-open
-&gt;&lt;/df-messenger&gt;</code></pre>
 
 </div>
 
