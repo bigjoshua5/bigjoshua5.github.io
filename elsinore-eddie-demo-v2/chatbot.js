@@ -12,58 +12,50 @@
       event?.detail;
 
     const messages = response?.queryResult?.fulfillmentMessages || [];
-    return messages
-      .filter(msg => msg && msg.payload)
-      .map(msg => msg.payload);
+    return messages.filter(m => m && m.payload).map(m => m.payload);
   }
 
   function hideDfMessenger() {
     const df = document.querySelector(DF_SELECTOR);
-    if (!df) return false;
+    if (!df) return;
     df.style.display = 'none';
-    return true;
   }
 
   function injectQueueIframe(queueUrl) {
-    if (!queueUrl) return false;
-
-    const existing = document.getElementById(IFRAME_ID);
-    if (existing) {
-      console.log('[Queue Handoff] Queue iframe already loaded.');
-      return true;
-    }
+    const old = document.getElementById(WRAPPER_ID);
+    if (old) old.remove();
 
     const wrapper = document.createElement('div');
     wrapper.id = WRAPPER_ID;
     wrapper.style.position = 'fixed';
-    wrapper.style.bottom = '0px';
     wrapper.style.right = '15px';
+    wrapper.style.bottom = '0px';
     wrapper.style.width = '360px';
     wrapper.style.height = '735px';
-    wrapper.style.overflow = 'hidden';
     wrapper.style.zIndex = '2147483647';
     wrapper.style.display = 'block';
     wrapper.style.visibility = 'visible';
     wrapper.style.opacity = '1';
-    wrapper.style.background = 'transparent';
-    wrapper.style.border = '0';
-    wrapper.style.boxShadow = 'none';
+    wrapper.style.overflow = 'hidden';
+    wrapper.style.background = '#ffffff';
+    wrapper.style.borderRadius = '4px';
+    wrapper.style.boxShadow = '0 0 0 1px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.18)';
 
     const iframe = document.createElement('iframe');
     iframe.id = IFRAME_ID;
     iframe.src = queueUrl;
-    iframe.setAttribute('scrolling', 'no');
-    iframe.setAttribute('frameborder', '0');
-    iframe.setAttribute('allowtransparency', 'true');
-    iframe.setAttribute('allow', 'clipboard-write; storage-access-api');
+    iframe.scrolling = 'no';
+    iframe.frameBorder = '0';
+    iframe.allowTransparency = 'true';
     iframe.style.position = 'absolute';
-    iframe.style.inset = '0';
+    iframe.style.top = '0';
+    iframe.style.left = '0';
     iframe.style.width = '100%';
     iframe.style.height = '100%';
     iframe.style.border = '0';
     iframe.style.display = 'block';
     iframe.style.visibility = 'visible';
-    iframe.style.background = 'transparent';
+    iframe.style.background = '#ffffff';
 
     iframe.onload = function () {
       console.log('[Queue Handoff] Queue iframe loaded:', queueUrl);
@@ -80,8 +72,6 @@
 
     window.__queueWrapper = wrapper;
     window.__queueIframe = iframe;
-
-    return true;
   }
 
   function handleDfResponse(event) {
