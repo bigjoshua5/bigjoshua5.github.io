@@ -231,6 +231,67 @@ df-messenger{
     console.error('[ICR HANDOFF]', ...args);
   }
 
+  function installNetworkInterceptors() {
+  // FETCH
+  const originalFetch = window.fetch.bind(window);
+  window.fetch = async function (...args) {
+    const response = await originalFetch(...args);
+
+    try {
+      const req = args[0];
+      const url =
+        typeof req === 'string'
+          ? req
+          : req instanceof Request
+            ? req.url
+            : '';
+
+      if (url.includes('pop6-ccs-webchat-api.serverdata.net')) {
+        const token = response.headers.get('token');
+        if (token) {
+          state.intermediaToken = token;
+          log('Captured Intermedia token from fetch response headers.');
+        }
+      }
+    } catch (e) {
+      warn('Fetch interceptor error:', e);
+    }
+
+    return response;
+  };
+
+  // XHR
+  const originalOpen = XMLHttpRequest.prototype.open;
+  const originalSend = XMLHttpRequest.prototype.send;
+
+  XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+    this.__icr_url = url;
+    return originalOpen.call(this, method, url, ...rest);
+  };
+
+  XMLHttpRequest.prototype.send = function (body) {
+    this.addEventListener('readystatechange', function () {
+      try {
+        if (this.readyState !== 4) return;
+        if (!this.__icr_url) return;
+        if (!String(this.__icr_url).includes('pop6-ccs-webchat-api.serverdata.net')) return;
+
+        const token = this.getResponseHeader('token');
+        if (token) {
+          state.intermediaToken = token;
+          log('Captured Intermedia token from XHR response headers.');
+        }
+      } catch (e) {
+        warn('XHR interceptor error:', e);
+      }
+    });
+
+    return originalSend.call(this, body);
+  };
+
+  log('Fetch + XHR interceptors installed.');
+}
+
   function installFetchInterceptor() {
     window.fetch = async function (...args) {
       const response = await state.originalFetch(...args);
@@ -530,7 +591,8 @@ df-messenger{
   }
 
   function init() {
-    installFetchInterceptor();
+    // installFetchInterceptor();
+    installNetworkInterceptors();
 
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', attachDfMessengerListener);
