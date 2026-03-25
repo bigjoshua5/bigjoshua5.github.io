@@ -417,6 +417,31 @@ df-messenger{
     }
   }
 
+  function openIntermediaWidget() {
+    const container = document.getElementById('tlx-webchat-container');
+    const iframe = document.getElementById('tlx-webchat-app');
+
+    if (!container || !iframe) {
+      throw new Error('Intermedia chat container or iframe was not created.');
+    }
+
+    container.style.visibility = 'visible';
+    container.style.display = 'inherit';
+    container.style.opacity = '1';
+    container.style.width = '360px';
+    container.style.height = '735px';
+    container.style.bottom = '0px';
+    container.style.right = '15px';
+
+    // Some widgets honor postMessage commands from parent;
+    // even if this one ignores it, the container sizing still helps.
+    try {
+      iframe.contentWindow?.postMessage({ type: 'openChat' }, '*');
+    } catch (e) {
+      console.warn('Unable to postMessage to Intermedia iframe:', e);
+    }
+  }
+
   async function postJsonWithBearer(url, token, body, extraHeaders = {}) {
     const response = await fetch(url, {
       method: 'POST',
@@ -526,7 +551,16 @@ df-messenger{
       removeDfMessengerCompletely();
 
       await loadIntermediaChat();
+      openIntermediaWidget();
 
+      console.log(
+        'ICR elements:',
+        document.getElementById('tlx-webchat-container'),
+        document.getElementById('tlx-webchat-app')
+      );
+        
+      await wait(1500); // give iframe/app a moment to initialize after opening
+      
       const initialToken = await waitForToken(CONFIG.timing.tokenWaitMs);
       log('Intermedia token available.');
 
