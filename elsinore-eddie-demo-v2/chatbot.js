@@ -30,8 +30,8 @@
     wrapper.style.position = 'fixed';
     wrapper.style.right = '15px';
     wrapper.style.bottom = '0px';
-    wrapper.style.width = '360px';
-    wrapper.style.height = '735px';
+    wrapper.style.width = '560px';
+    wrapper.style.height = '640px';
     wrapper.style.zIndex = '2147483647';
     wrapper.style.display = 'block';
     wrapper.style.visibility = 'visible';
