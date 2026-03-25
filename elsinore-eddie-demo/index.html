@@ -270,6 +270,39 @@ df-messenger{
     return document.querySelector(CONFIG.dfMessengerSelector);
   }
 
+  function hideDfMessengerCompletely() {
+    const df = document.querySelector('df-messenger');
+    if (!df) return false;
+
+    // Fastest and most reliable: hide the host element itself
+    df.style.display = 'none';
+    return true;
+  }
+
+  function removeDfMessengerCompletely() {
+    const df = document.querySelector('df-messenger');
+    if (!df) return false;
+
+    df.remove();
+    return true;
+  }
+
+  function hideDfMessengerPanelOnly() {
+    const df = document.querySelector('df-messenger');
+    if (!df || !df.shadowRoot) return false;
+
+    const chat = df.shadowRoot.querySelector('df-messenger-chat');
+    if (!chat || !chat.shadowRoot) return false;
+
+    const wrapper = chat.shadowRoot.querySelector('.chat-wrapper');
+    const bubble = df.shadowRoot.querySelector('#widgetIcon');
+
+    if (wrapper) wrapper.style.display = 'none';
+    if (bubble) bubble.style.display = 'none';
+
+    return true;
+  }
+
   function minimizeDfMessenger() {
     const df = getDfMessenger();
     if (!df) return;
@@ -519,6 +552,10 @@ df-messenger{
         if (!handoffPayload) return;
 
         log('Detected df-messenger handoff payload:', handoffPayload);
+        // Remove the DF-Messenger
+        removeDfMessengerCompletely();
+
+        // Add Intermedia ICR Queue
         await executeIntermediaHandoff(handoffPayload);
       } catch (e) {
         err('Failed while handling df-response-received:', e);
