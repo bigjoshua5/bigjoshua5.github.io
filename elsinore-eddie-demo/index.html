@@ -194,7 +194,6 @@ df-messenger{
 
   const CONFIG = {
     dfMessengerSelector: 'df-messenger',
-
     intermedia: {
       scriptUrl: 'https://pop6-ccs-webchat-api.serverdata.net/script/icr?cid=elsinorewater&icr=918eabbf-966b-4af0-82c0-21cd2af857d3',
       sendChatBotRequestUrl: 'https://pop6-ccs-webchat-api.serverdata.net/icr/SendChatBotRequest',
@@ -205,12 +204,10 @@ df-messenger{
       defaultQueueId: 770644,
       defaultTriggerPhrase: '__queue_770644__'
     },
-
     timing: {
       tokenWaitMs: 10000,
       pollIntervalMs: 250
     },
-
     debug: true
   };
 
@@ -223,9 +220,7 @@ df-messenger{
   };
 
   function log(...args) {
-    if (CONFIG.debug) {
-      console.log('[ICR HANDOFF]', ...args);
-    }
+    if (CONFIG.debug) console.log('[ICR HANDOFF]', ...args);
   }
 
   function warn(...args) {
@@ -270,51 +265,11 @@ df-messenger{
     return document.querySelector(CONFIG.dfMessengerSelector);
   }
 
-  function hideDfMessengerCompletely() {
-    const df = document.querySelector('df-messenger');
-    if (!df) return false;
-
-    // Fastest and most reliable: hide the host element itself
-    df.style.display = 'none';
-    return true;
-  }
-
   function removeDfMessengerCompletely() {
     const df = document.querySelector('df-messenger');
     if (!df) return false;
-
     df.remove();
     return true;
-  }
-
-  function hideDfMessengerPanelOnly() {
-    const df = document.querySelector('df-messenger');
-    if (!df || !df.shadowRoot) return false;
-
-    const chat = df.shadowRoot.querySelector('df-messenger-chat');
-    if (!chat || !chat.shadowRoot) return false;
-
-    const wrapper = chat.shadowRoot.querySelector('.chat-wrapper');
-    const bubble = df.shadowRoot.querySelector('#widgetIcon');
-
-    if (wrapper) wrapper.style.display = 'none';
-    if (bubble) bubble.style.display = 'none';
-
-    return true;
-  }
-
-  function minimizeDfMessenger() {
-    const df = getDfMessenger();
-    if (!df) return;
-
-    try {
-      if (typeof df.showMinChat === 'function') {
-        df.showMinChat();
-        log('df-messenger minimized.');
-      }
-    } catch (e) {
-      warn('Unable to minimize df-messenger:', e);
-    }
   }
 
   function wait(ms) {
@@ -325,9 +280,7 @@ df-messenger{
     const started = Date.now();
 
     while (Date.now() - started < timeoutMs) {
-      if (state.intermediaToken) {
-        return state.intermediaToken;
-      }
+      if (state.intermediaToken) return state.intermediaToken;
       await wait(CONFIG.timing.pollIntervalMs);
     }
 
@@ -355,7 +308,6 @@ df-messenger{
       if (existing) {
         state.icrScriptLoaded = true;
         state.icrScriptLoading = false;
-        log('Intermedia script already present in DOM.');
         resolve();
         return;
       }
@@ -371,7 +323,7 @@ df-messenger{
         resolve();
       };
 
-      script.onerror = (e) => {
+      script.onerror = () => {
         state.icrScriptLoading = false;
         reject(new Error('Failed to load Intermedia script.'));
       };
@@ -379,6 +331,29 @@ df-messenger{
       document.head.appendChild(script);
       log('Loading Intermedia script...');
     });
+  }
+
+  async function loadIntermediaChat() {
+    await loadIntermediaScript();
+
+    if (window._tlx) {
+      try {
+        if (typeof window._tlx.setupParamsFromQueryString === 'function') {
+          window._tlx.setupParamsFromQueryString();
+        }
+        if (typeof window._tlx.setupWindowListener === 'function') {
+          window._tlx.setupWindowListener();
+        }
+        if (typeof window._tlx.setupChatWindow === 'function') {
+          window._tlx.setupChatWindow();
+        }
+        log('Intermedia chat window created manually.');
+      } catch (e) {
+        throw new Error(`Failed to initialize Intermedia chat manually: ${e.message}`);
+      }
+    } else {
+      throw new Error('_tlx was not created by the Intermedia script.');
+    }
   }
 
   async function postJsonWithBearer(url, token, body, extraHeaders = {}) {
@@ -455,9 +430,7 @@ df-messenger{
     const payloads = [];
 
     for (const msg of messages) {
-      if (msg && msg.payload) {
-        payloads.push(msg.payload);
-      }
+      if (msg && msg.payload) payloads.push(msg.payload);
     }
 
     return payloads;
@@ -465,9 +438,7 @@ df-messenger{
 
   function findHandoffPayload(payloads) {
     for (const payload of payloads) {
-      if (payload?.handoffToICR === true) {
-        return payload;
-      }
+      if (payload?.handoffToICR === true) return payload;
     }
     return null;
   }
@@ -489,14 +460,11 @@ df-messenger{
         Number(handoffPayload?.icr?.queueId) ||
         CONFIG.intermedia.defaultQueueId;
 
-      log('Starting Intermedia handoff...', {
-        triggerPhrase,
-        fallbackQueueId
-      });
+      log('Starting Intermedia handoff...', { triggerPhrase, fallbackQueueId });
 
-      minimizeDfMessenger();
+      removeDfMessengerCompletely();
 
-      await loadIntermediaScript();
+      await loadIntermediaChat();
 
       const initialToken = await waitForToken(CONFIG.timing.tokenWaitMs);
       log('Intermedia token available.');
@@ -552,10 +520,6 @@ df-messenger{
         if (!handoffPayload) return;
 
         log('Detected df-messenger handoff payload:', handoffPayload);
-        // Remove the DF-Messenger
-        removeDfMessengerCompletely();
-
-        // Add Intermedia ICR Queue
         await executeIntermediaHandoff(handoffPayload);
       } catch (e) {
         err('Failed while handling df-response-received:', e);
