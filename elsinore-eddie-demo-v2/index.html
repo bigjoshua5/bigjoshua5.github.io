@@ -7,6 +7,13 @@
 <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
 <script src="chatbot.v2.js"></script>
 
+<!--  Event Listener  -->
+<script>
+window.addEventListener('message', function (event) {
+  console.log('[Intermedia postMessage]', event.origin, event.data);
+});
+</script>
+
 <style>
 
 body{
