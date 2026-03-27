@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elsinore Water Chat</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        
+        .header {
+            background-color: #0078d4;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        iframe {
+            width: 100%;
+            height: calc(100vh - 60px);
+            border: none;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        Elsinore Water - Customer Support Chat
+    </div>
+    
+    <iframe 
+        src="https://pop6-ccs-webchat-api.serverdata.net/manage?cid=elsinorewater&qid=770644"
+        title="Elsinore Water Chat"
+        allowfullscreen>
+    </iframe>
+
+    <script>
+        // Optional: Show a loading message while the iframe loads
+        window.addEventListener('load', function() {
+            console.log('Chat iframe loaded successfully');
+        });
+        
+        // Handle iframe load errors (basic)
+        const iframe = document.querySelector('iframe');
+        iframe.addEventListener('error', function() {
+            console.error('Failed to load the chat iframe');
+            alert('Unable to load the chat. Please check your connection and try again.');
+        });
+    </script>
+</body>
+</html>
