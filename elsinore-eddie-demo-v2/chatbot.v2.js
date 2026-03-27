@@ -98,4 +98,26 @@
   } else {
     attachListener();
   }
+
+  function reopenDfMessenger() {
+    const queueContainer = document.getElementById('tlx-webchat-container');
+    if (queueContainer) queueContainer.remove();
+
+    const queueScript = document.getElementById('intermedia-queue-script');
+    if (queueScript) queueScript.remove();
+
+    let df = document.querySelector('df-messenger');
+    if (!df) {
+      df = document.createElement('df-messenger');
+      df.setAttribute('chat-icon', 'https://pbs.twimg.com/profile_images/1706817590906306560/xpM_m5NG.jpg');
+      df.setAttribute('intent', 'WELCOME');
+      df.setAttribute('chat-title', 'Elsinore-Eddie');
+      df.setAttribute('agent-id', 'a78885bb-e6ee-492e-9433-5344dca3be40');
+      df.setAttribute('language-code', 'en');
+      df.setAttribute('wait-open', '');
+      document.body.appendChild(df);
+    } else {
+      df.style.display = '';
+    }
+  }
 })();
