@@ -28,8 +28,8 @@
     const wrapper = document.createElement('div');
     wrapper.id = WRAPPER_ID;
     wrapper.style.position = 'fixed';
-    wrapper.style.right = '15px';
-    wrapper.style.bottom = '0px';
+    wrapper.style.right = '20px';
+    wrapper.style.bottom = '105px';
     wrapper.style.width = '370px';
     wrapper.style.height = '560px';
     wrapper.style.zIndex = '2147483647';
