@@ -3,13 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elsinore Water Chat</title>
+    <title>Chat Launcher</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0078d4, #005a9e);
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background-color: white;
+            color: #0078d4;
+            border: none;
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        .info {
+            margin-top: 30px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
 </head>
 <body>
-    <iframe 
-        src="https://pop6-ccs-webchat-api.serverdata.net/manage?cid=elsinorewater&qid=770644"
-        title="Elsinore Water Chat"
-        allowfullscreen>
-    </iframe>
+    <div class="container">
+        <h1>Elsinore Water Support Chat</h1>
+        <button onclick="openChatWindow()">Open Chat in Clean Window</button>
+        <div class="info">
+            Click the button to open the chat in a clean, distraction-free window
+        </div>
+    </div>
+
+    <script>
+        function openChatWindow() {
+            const url = "https://pop6-ccs-webchat-api.serverdata.net/manage?cid=elsinorewater&qid=770644";
+            
+            // Calculate window size (most of the screen)
+            const width = Math.floor(screen.width * 0.85);
+            const height = Math.floor(screen.height * 0.90);
+            
+            // Center the window
+            const left = Math.floor((screen.width - width) / 2);
+            const top = Math.floor((screen.height - height) / 2);
+            
+            // Open in a new window with minimal UI (no address bar, no toolbar, etc.)
+            const chatWindow = window.open(
+                url,
+                "ElsinoreWaterChat",
+                `width=${width},height=${height},left=${left},top=${top},` +
+                `menubar=no,toolbar=no,location=no,status=no,scrollbars=yes,resizable=yes`
+            );
+
+            if (chatWindow) {
+                chatWindow.focus();
+                
+                // Optional: Try to make it as clean as possible
+                setTimeout(() => {
+                    if (chatWindow.document) {
+                        try {
+                            // Some browsers allow this, others block it
+                            chatWindow.document.title = "Elsinore Water Chat";
+                        } catch(e) {}
+                    }
+                }, 1000);
+            } else {
+                // Fallback if popup was blocked
+                alert("Popup was blocked by your browser.\n\nPlease allow popups for this site and try again.");
+            }
+        }
+
+        // Optional: Auto-open when the page loads (uncomment if desired)
+        // window.onload = openChatWindow;
+    </script>
 </body>
 </html>
