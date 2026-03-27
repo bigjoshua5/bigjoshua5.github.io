@@ -22,41 +22,43 @@
         }
         
         h1 {
-            font-size: 28px;
-            margin-bottom: 20px;
+            font-size: 24px;
+            margin-bottom: 25px;
         }
         
         button {
             background-color: white;
             color: #0078d4;
             border: none;
-            padding: 16px 32px;
+            padding: 18px 36px;
             font-size: 18px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.25);
             transition: all 0.3s;
         }
         
         button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
         
         .info {
             margin-top: 30px;
             font-size: 14px;
-            opacity: 0.9;
+            opacity: 0.85;
+            max-width: 280px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Elsinore Water Support Chat</h1>
-        <button onclick="openChatWindow()">Open Chat in Clean Window</button>
+        <button onclick="openChatWindow()">Open Chat Window</button>
         <div class="info">
-            Click the button to open the chat in a clean, distraction-free window
+            Opens in a clean 360×640 px window<br>
+            (Address bar visibility depends on your browser)
         </div>
     </div>
 
@@ -64,42 +66,36 @@
         function openChatWindow() {
             const url = "https://pop6-ccs-webchat-api.serverdata.net/manage?cid=elsinorewater&qid=770644";
             
-            // Calculate window size (most of the screen)
-            const width = Math.floor(screen.width * 0.85);
-            const height = Math.floor(screen.height * 0.90);
+            // Fixed size: 360px width × 640px height
+            const width = 360;
+            const height = 640;
             
-            // Center the window
+            // Center on screen
             const left = Math.floor((screen.width - width) / 2);
             const top = Math.floor((screen.height - height) / 2);
             
-            // Open in a new window with minimal UI (no address bar, no toolbar, etc.)
-            const chatWindow = window.open(
-                url,
-                "ElsinoreWaterChat",
-                `width=${width},height=${height},left=${left},top=${top},` +
-                `menubar=no,toolbar=no,location=no,status=no,scrollbars=yes,resizable=yes`
-            );
+            // Try to hide as much UI as possible
+            const features = 
+                `width=${width},height=${height},` +
+                `left=${left},top=${top},` +
+                `menubar=no,toolbar=no,location=no,status=no,` +
+                `scrollbars=yes,resizable=no,popup=yes`;
+            
+            const chatWindow = window.open(url, "ElsinoreWaterChat", features);
 
             if (chatWindow) {
                 chatWindow.focus();
                 
-                // Optional: Try to make it as clean as possible
+                // Some browsers allow changing the title
                 setTimeout(() => {
-                    if (chatWindow.document) {
-                        try {
-                            // Some browsers allow this, others block it
-                            chatWindow.document.title = "Elsinore Water Chat";
-                        } catch(e) {}
-                    }
-                }, 1000);
+                    try {
+                        chatWindow.document.title = "Elsinore Water Chat";
+                    } catch (e) {}
+                }, 800);
             } else {
-                // Fallback if popup was blocked
-                alert("Popup was blocked by your browser.\n\nPlease allow popups for this site and try again.");
+                alert("Popup blocked by your browser.\n\nPlease allow popups for this page and click the button again.");
             }
         }
-
-        // Optional: Auto-open when the page loads (uncomment if desired)
-        // window.onload = openChatWindow;
     </script>
 </body>
 </html>
