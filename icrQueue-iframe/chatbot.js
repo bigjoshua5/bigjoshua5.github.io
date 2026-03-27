@@ -14,7 +14,7 @@
         paramPN: '',
         paramPOPID: '',
         paramITAG: '',
-        paramIQRY: 'Hi, I have a question about my water bill and usage this month.',
+        paramIQRY: '',
         mobileMode: false,
         minimized: undefined,
 
