@@ -20,6 +20,29 @@
     df.style.display = 'none';
   }
 
+  function initializeIntermediaQueue() {
+    if (!window._tlx) {
+      console.error('[Queue Handoff] _tlx not found after script load.');
+      return;
+    }
+
+    try {
+      if (typeof window._tlx.setupParamsFromQueryString === 'function') {
+        window._tlx.setupParamsFromQueryString();
+      }
+      if (typeof window._tlx.setupWindowListener === 'function') {
+        window._tlx.setupWindowListener();
+      }
+      if (typeof window._tlx.setupChatWindow === 'function') {
+        window._tlx.setupChatWindow();
+      }
+
+      console.log('[Queue Handoff] Intermedia queue initialized manually.');
+    } catch (err) {
+      console.error('[Queue Handoff] Failed to initialize Intermedia queue:', err);
+    }
+  }
+
   function injectQueueScript(queueUrl) {
     const old = document.getElementById(SCRIPT_ID);
     if (old) old.remove();
@@ -32,6 +55,7 @@
 
     script.onload = function () {
       console.log('[Queue Handoff] Queue script loaded:', queueUrl);
+      initializeIntermediaQueue();
     };
 
     script.onerror = function () {
@@ -39,8 +63,6 @@
     };
 
     document.body.appendChild(script);
-
-    window.__queueScript = script;
   }
 
   function handleDfResponse(event) {
